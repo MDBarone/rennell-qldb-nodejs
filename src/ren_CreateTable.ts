@@ -15,15 +15,16 @@
  * OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE
  * SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
  */
+import AWS = require('aws-sdk');
+AWS.config.update({region: 'us-east-1'});
+
 import { QldbDriver, Result, TransactionExecutor } from "amazon-qldb-driver-nodejs";
 
 import { getQldbDriver } from "./ren_ConnectToLedger";
 import {
-    DRIVERS_LICENSE_TABLE_NAME,
-    PERSON_TABLE_NAME,
-    VEHICLE_REGISTRATION_TABLE_NAME,
-    VEHICLE_TABLE_NAME
-} from "./qldb/Constants";
+    TRANSACTIONS_TABLE_NAME,
+    TOKENS_TABLE_NAME
+} from "./qldb/ren_Constants";
 import { error, log } from "./qldb/LogUtil";
 
 /**
@@ -49,10 +50,8 @@ var main = async function(): Promise<void> {
         const qldbDriver: QldbDriver = getQldbDriver();
         await qldbDriver.executeLambda(async (txn: TransactionExecutor) => {
             Promise.all([
-                createTable(txn, VEHICLE_REGISTRATION_TABLE_NAME),
-                createTable(txn, VEHICLE_TABLE_NAME),
-                createTable(txn, PERSON_TABLE_NAME),
-                createTable(txn, DRIVERS_LICENSE_TABLE_NAME)
+                createTable(txn, TRANSACTIONS_TABLE_NAME),
+                createTable(txn, TOKENS_TABLE_NAME)
             ]);
         }, () => log("Retrying due to OCC conflict..."));
     } catch (e) {

@@ -17,7 +17,7 @@
     "eslint": "^6.6.0",
     "ts-node": "^8.3.0",
     "typedoc": "^0.15.0",
-    "typescript": "^3.5.3"
+    "typescript": "^3.9.6"
   },
   "scripts": {
     "build": "npm run lint && tsc",
