@@ -16,6 +16,7 @@
  * SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
  */
 
+
 import { QldbDriver, Result, TransactionExecutor } from "amazon-qldb-driver-nodejs";
 import { dom } from "ion-js";
 
@@ -50,14 +51,17 @@ export async function insertDocument(
  * @returns Promise which fulfills with void.
  */
 async function updateAndInsertDocuments(txn: TransactionExecutor): Promise<void> {
-    log("Inserting multiple documents into the 'Person' table...");
-    const documentIds: Result = await insertDocument(txn, PERSON_TABLE_NAME, PERSON);
+    /** Functional code to add PK-like identifiers into the document data when useful.
+    * May consider using this for future taxonomy
+    // log("Inserting multiple documents into the 'Person' table...");
+    // const documentIds: Result = await insertDocument(txn, PERSON_TABLE_NAME, PERSON);
+    //
+    // const listOfDocumentIds: dom.Value[] = documentIds.getResultList();
+    // log("Updating PersonIds for 'DriversLicense' and PrimaryOwner for 'VehicleRegistration'...");
+    // updatePersonId(listOfDocumentIds);
+    */
 
-    const listOfDocumentIds: dom.Value[] = documentIds.getResultList();
-    log("Updating PersonIds for 'DriversLicense' and PrimaryOwner for 'VehicleRegistration'...");
-    updatePersonId(listOfDocumentIds);
-
-    log("Inserting multiple documents into the remaining tables...");
+    log("Inserting multiple documents into tables...");
     await Promise.all([
         insertDocument(txn, TRANSACTIONS_TABLE_NAME, TRANSACTIONS),
         insertDocument(txn, TOKENS_TABLE_NAME, TOKENS)

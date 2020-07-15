@@ -28,7 +28,7 @@ import {
 
 import { LEDGER_NAME } from "./qldb/ren_Constants";
 import { error, log } from "./qldb/LogUtil";
-import { sleep } from "./qldb/Util";
+import { sleep } from "./qldb/ren_Util";
 
 const LEDGER_CREATION_POLL_PERIOD_MS = 10000;
 const ACTIVE_STATE = "ACTIVE";
