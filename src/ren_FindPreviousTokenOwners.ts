@@ -20,39 +20,52 @@ import { QldbDriver, Result, TransactionExecutor } from "amazon-qldb-driver-node
 import { dom } from "ion-js";
 
 import { getQldbDriver } from "./ren_ConnectToLedger";
+// import { VEHICLE_REGISTRATION } from "./model/ren_SampleData";
 import { TOKENS_TABLE_NAME } from "./qldb/ren_Constants";
-import { error, log } from "./qldb/LogUtil";
 import { prettyPrintResultList } from "./ren_ScanTable";
-
-let SAMPLE_ID: string = "F4D7E8B7FF4EB4DD67E3132FE7C6E10B7AA8862";
+import { error, log } from "./qldb/LogUtil";
+import { getDocumentId } from "./qldb/ren_Util";
 
 /**
- * Query 'Vehicle' and 'VehicleRegistration' tables using a unique document ID in one transaction.
+ * Find previous primary owners for the given token_id in a single transaction.
  * @param txn The {@linkcode TransactionExecutor} for lambda execute.
- * @param govId The owner's government ID.
+ * @param vin The VIN to find previous primary owners for.
  * @returns Promise which fulfills with void.
  */
-async function findTokensOwnedByUser(txn: TransactionExecutor, buyer_id: string): Promise<void> {
-    const query: string = `SELECT t.name, c.amount FROM Tokens AS t, t.buyer_ids as c WHERE c.wallet_id = ?`
-    await txn.execute(query, buyer_id).then((result: Result) => {
+async function FindPreviousTokenOwners(txn: TransactionExecutor, token_id: number): Promise<void> {
+    const documentId: string = await getDocumentId(txn, TOKENS_TABLE_NAME, "token_id", token_id);
+    const todaysDate: Date = new Date();
+    const threeMonthsAgo: Date = new Date(todaysDate);
+    threeMonthsAgo.setMonth(todaysDate.getMonth() - 3);
+
+    const query: string =
+        `SELECT c.wallet_id, h.metadata.version FROM history ` +
+        `(${TOKENS_TABLE_NAME}, \`${threeMonthsAgo.toISOString()}\`, \`${todaysDate.toISOString()}\`) ` +
+        `AS h, h.data.buyer_ids as c WHERE h.metadata.id = ?`;
+    await txn.execute(query, documentId).then((result: Result) => {
+        log(`Querying the 'Tokens' table's history using token_id: ${token_id}.`);
         const resultList: dom.Value[] = result.getResultList();
-        log(`Tokens and amounts for for buyer with wallet_id: ${buyer_id}`);
-        prettyPrintResultList(resultList);
+        // prettyPrintResultList(resultList);
+        // log(resultList)
+        // log(JSresultList);
+        // COMPARE VERSION HISTORY FOR UNIQUE USERS
+        // ...
     });
 }
 
 /**
- * Find all vehicles registered under a person.
+ * Query a table's history for a particular set of documents.
  * @returns Promise which fulfills with void.
  */
 var main = async function(): Promise<void> {
     try {
         const qldbDriver: QldbDriver = getQldbDriver();
+        const token_id: number = 29; // EXAMPLE TOKEN
         await qldbDriver.executeLambda(async (txn: TransactionExecutor) => {
-            await findTokensOwnedByUser(txn, SAMPLE_ID);
+            await FindPreviousTokenOwners(txn, token_id);
         }, () => log("Retrying due to OCC conflict..."));
     } catch (e) {
-        error(`Error getting vehicles for owner: ${e}`);
+        error(`Unable to query history to find previous owners: ${e}`);
     }
 }
 

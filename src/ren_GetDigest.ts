@@ -16,44 +16,39 @@
  * SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
  */
 
-import { QldbDriver, Result, TransactionExecutor } from "amazon-qldb-driver-nodejs";
+import { QLDB } from "aws-sdk";
+import { GetDigestRequest, GetDigestResponse } from "aws-sdk/clients/qldb";
 
-import { getQldbDriver } from "./ren_ConnectToLedger";
-import {
-    TRANSACTIONS_TABLE_NAME,
-    TOKENS_TABLE_NAME
-} from "./qldb/ren_Constants";
+import { LEDGER_NAME } from "./qldb/ren_Constants";
 import { error, log } from "./qldb/LogUtil";
+import { digestResponseToString } from "./qldb/ren_Util";
 
 /**
- * Create multiple tables in a single transaction.
- * @param txn The {@linkcode TransactionExecutor} for lambda execute.
- * @param tableName Name of the table to create.
- * @returns Promise which fulfills with the number of changes to the database.
+ * Get the digest of a ledger's journal.
+ * @param ledgerName Name of the ledger to operate on.
+ * @param qldbClient The QLDB control plane client to use.
+ * @returns Promise which fulfills with a GetDigestResponse.
  */
-export async function createTable(txn: TransactionExecutor, tableName: string): Promise<number> {
-    const statement: string = `CREATE TABLE ${tableName}`;
-    return await txn.execute(statement).then((result: Result) => {
-        log(`Successfully created table ${tableName}.`);
-        return result.getResultList().length;
-    });
+export async function getDigestResult(ledgerName: string, qldbClient: QLDB): Promise<GetDigestResponse> {
+    const request: GetDigestRequest = {
+        Name: ledgerName
+    };
+    const result: GetDigestResponse = await qldbClient.getDigest(request).promise();
+    return result;
 }
 
 /**
- * Create tables in a QLDB ledger.
+ * This is an example for retrieving the digest of a particular ledger.
  * @returns Promise which fulfills with void.
  */
 var main = async function(): Promise<void> {
     try {
-        const qldbDriver: QldbDriver = getQldbDriver();
-        await qldbDriver.executeLambda(async (txn: TransactionExecutor) => {
-            Promise.all([
-                createTable(txn, TRANSACTIONS_TABLE_NAME),
-                createTable(txn, TOKENS_TABLE_NAME)
-            ]);
-        }, () => log("Retrying due to OCC conflict..."));
+        const qldbClient: QLDB = new QLDB();
+        log(`Retrieving the current digest for ledger: ${LEDGER_NAME}.`);
+        const digest: GetDigestResponse = await getDigestResult(LEDGER_NAME, qldbClient);
+        log(`Success. Ledger digest: \n${digestResponseToString(digest)}.`);
     } catch (e) {
-        error(`Unable to create tables: ${e}`);
+        error(`Unable to get a ledger digest: ${e}`);
     }
 }
 

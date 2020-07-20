@@ -15,8 +15,6 @@
  * OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE
  * SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
  */
-import AWS = require('aws-sdk');
-AWS.config.update({region: 'us-east-1'});
 
 import { QldbDriver, TransactionExecutor } from "amazon-qldb-driver-nodejs";
 

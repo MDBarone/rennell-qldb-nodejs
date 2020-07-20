@@ -21,7 +21,6 @@ const SAMPLE_BUYER_IDS: object[] = [ {wallet_id: "F4D7E8B7FF4EB4DD67E3132FE7C6E1
 
 export const TRANSACTIONS = [
   {
-        tx_id: 29,
         tx_type: "mint",
         instituion_id: 3,
         token_id: 29,
@@ -47,7 +46,6 @@ export const TRANSACTIONS = [
       }
       ,
       {
-        tx_id: 30,
         tx_type: "mint",
         instituion_id: 3,
         token_id: 36,
@@ -70,7 +68,6 @@ export const TRANSACTIONS = [
         }
       },
       {
-        tx_id: 36,
         tx_type: "buy",
         instituion_id: 3,
         token_id: 29,
@@ -94,7 +91,6 @@ export const TRANSACTIONS = [
         }
       },
       {
-        tx_id: 36,
         tx_type: "trade",
         instituion_id: 3,
         token_id: 29,
@@ -118,7 +114,6 @@ export const TRANSACTIONS = [
   }
 },
     {
-        tx_id: 36,
         tx_type: "trade",
         instituion_id: 3,
         token_id: 29,
@@ -142,7 +137,6 @@ export const TRANSACTIONS = [
     }
   },
     {
-        tx_id: 36,
         tx_type: "trade",
         instituion_id: 3,
         token_id: 29,

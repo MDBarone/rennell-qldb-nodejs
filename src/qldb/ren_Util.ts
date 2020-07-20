@@ -85,7 +85,7 @@ export async function getDocumentId(
     txn: TransactionExecutor,
     tableName: string,
     field: string,
-    value: string
+    value: string | number
 ): Promise<string> {
     const query: string = `SELECT id FROM ${tableName} AS t BY id WHERE t.${field} = ?`;
     let documentId: string = undefined;
@@ -110,25 +110,25 @@ export async function getDocumentId(
  * @param value The key of the given field.
  * @returns Promise which fulfills with the document ID as a string.
  */
-export async function getDocumentIdForBuyer(
-    txn: TransactionExecutor,
-    field: string,
-    value: string
-): Promise<string> {
-    const query: string = `SELECT id FROM Tokens AS t BY id, t.${field} as c WHERE c.wallet_id = ?`;
-    let documentId: string = undefined;
-    await txn.execute(query, value).then((result: Result) => {
-        const resultList: dom.Value[] = result.getResultList();
-        if (resultList.length === 0) {
-            throw new Error(`Unable to retrieve document ID using ${value} from ${field} column.`);
-        }
-        documentId = resultList[0].get("id").stringValue();
-
-    }).catch((err: any) => {
-        error(`Error getting documentId: ${err}`);
-    });
-    return documentId;
-}
+// export async function getDocumentIdForBuyer(
+//     txn: TransactionExecutor,
+//     field: string,
+//     value: string | number
+// ): Promise<string> {
+//     const query: string = `SELECT id FROM Tokens AS t BY id, t.${field} as c WHERE c.wallet_id = ?`;
+//     let documentId: string = undefined;
+//     await txn.execute(query, value).then((result: Result) => {
+//         const resultList: dom.Value[] = result.getResultList();
+//         if (resultList.length === 0) {
+//             throw new Error(`Unable to retrieve document ID using ${value} from ${field} column.`);
+//         }
+//         documentId = resultList[0].get("id").stringValue();
+//
+//     }).catch((err: any) => {
+//         error(`Error getting documentId: ${err}`);
+//     });
+//     return documentId;
+// }
 
 /**
  * Sleep for the specified amount of time.

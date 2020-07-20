@@ -15,13 +15,16 @@
  * OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE
  * SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
  */
+ import AWS = require('aws-sdk');
+ AWS.config.update({region: 'us-east-1'});
+
 
 import { QLDB } from "aws-sdk";
 import { GetDigestRequest, GetDigestResponse } from "aws-sdk/clients/qldb";
 
-import { LEDGER_NAME } from "./qldb/Constants";
+import { LEDGER_NAME } from "./qldb/ren_Constants";
 import { error, log } from "./qldb/LogUtil";
-import { digestResponseToString } from "./qldb/Util";
+import { digestResponseToString } from "./qldb/ren_Util";
 
 /**
  * Get the digest of a ledger's journal.
